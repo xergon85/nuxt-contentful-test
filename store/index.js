@@ -1,3 +1,5 @@
+import client from '~/plugins/contentful'
+
 export const state = () => ({
   posts: null
 })
@@ -11,10 +13,10 @@ export const mutations = {
 export const actions = {
   async getPosts ({ commit }) {
     try {
-      if (!this.$contentful.client) {
+      if (!client) {
         return
       }
-      const response = await this.$contentful.client.getEntries({
+      const response = await client.getEntries({
         content_type: 'blogPost'
       })
       if (response.items.length > 0) {

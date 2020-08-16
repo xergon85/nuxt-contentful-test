@@ -1,4 +1,13 @@
-import dotenv from 'dotenv'; dotenv.config()
+import dotenv from 'dotenv'
+
+// eslint-disable-next-line nuxt/no-cjs-in-config
+const contentful = require('contentful')
+const client = contentful.createClient({
+  space: process.env.DEVELOPMENT_CONTENTFUL_SPACE,
+  accessToken: process.env.DEVELOPMENT_CONTENTFUL_ACCESSTOKEN
+})
+
+dotenv.config()
 
 export default {
   /*
@@ -37,7 +46,8 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    '~/plugins/posts'
+    '~/plugins/posts',
+    '~/plugins/contentful'
   ],
   /*
   ** Auto import components
@@ -56,8 +66,7 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
-    '@nuxtjs/markdownit',
-    'contentful-module'
+    '@nuxtjs/markdownit'
   ],
   /* Markdownit */
   markdownit: {
@@ -71,33 +80,11 @@ export default {
     customVariables: ['~/assets/variables.scss'],
     theme: {}
   },
-  /** Contentful */
-  contentful: {
-    // the default callable env (accessible from $contentful.client)
-    default: process.env.NODE_ENV,
-    // a list of included environments, or a single env (like: 'production')
-    // this is useful when you should filter out some credetials
-    activeEnvironments: [process.env.NODE_ENV, 'development'],
-    environments: {
-      /*
-      production: {
-        space: process.env.PRODUCTION_CONTENTFUL_SPACE,
-        accessToken: process.env.PRODUCTION_CONTENTFUL_ACCESSTOKEN
-      },
-      */
-      development: {
-        space: process.env.DEVELOPMENT_CONTENTFUL_SPACE,
-        accessToken: process.env.DEVELOPMENT_CONTENTFUL_ACCESSTOKEN
-      }
-    }
-  },
   /*
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/
   */
-  build: {
-    transpile: ['contentful-module']
-  },
+  build: {},
   env: {
     CONTENTFUL_SPACE: process.env.DEVELOPMENT_CONTENTFUL_SPACE,
     CONTENTFUL_ACCESSTOKEN: process.env.DEVELOPMENT_CONTENTFUL_ACCESSTOKEN,
@@ -106,7 +93,7 @@ export default {
   generate: {
     routes () {
       return Promise.all([
-        this.$contentful.client.getEntries({
+        client.getEntries({
           content_type: 'blogPost'
         })
       ]).then(([blogEntries]) => {
